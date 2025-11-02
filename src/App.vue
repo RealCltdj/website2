@@ -8,7 +8,7 @@ interface DeviceMotionState {
   interval: number | null;
 }
 
-type PermissionState = "granted" | "denied" | "not_required" | ""
+type PermissionState = "granted" | "denied" | "not_required" | "failed_to_ask" | "asking"
 
 // Initialize reactive state with null values
 const ev = reactive<DeviceMotionState>({
@@ -18,12 +18,14 @@ const ev = reactive<DeviceMotionState>({
   interval: null,
 });
 
-const permission: Ref<PermissionState> = ref("");
+const permission: Ref<PermissionState> = ref("not_required");
+const error = ref("");
 
 async function requestPermissionAndListen() {
   // iOS requires permission to access device motion events
   if (typeof DeviceMotionEvent !== 'undefined' && 'requestPermission' in DeviceMotionEvent) {
     try {
+      permission.value = "asking";
       const response: PermissionState = await DeviceMotionEvent.requestPermission();
       permission.value = response;
       if (response === 'granted') {
@@ -32,11 +34,12 @@ async function requestPermissionAndListen() {
         console.warn('Permission to access device motion denied.');
       }
     } catch (err) {
+      permission.value = "failed_to_ask";
+      error.value = JSON.stringify(err);
       console.error('Error requesting device motion permission:', err);
     }
   } else {
     // Non iOS or no permission required
-    permission.value = "not_required"
     window.addEventListener('devicemotion', handleMotion);
   }
 }
@@ -54,6 +57,7 @@ requestPermissionAndListen();
 <template>
   <h1>Device Motion</h1>
   <p>Permission: {{ permission }}</p>
+  <p v-if="error != ''">Error: {{ error }}</p>
   <pre>{{ JSON.stringify(ev, null, 2) }}</pre>
 </template>
 
