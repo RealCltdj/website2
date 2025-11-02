@@ -8,7 +8,7 @@ interface DeviceMotionState {
   interval: number | null;
 }
 
-type PermissionState = "granted" | "denied" | "not_required"
+type PermissionState = "granted" | "denied" | "not_required" | ""
 
 // Initialize reactive state with null values
 const ev = reactive<DeviceMotionState>({
@@ -18,7 +18,7 @@ const ev = reactive<DeviceMotionState>({
   interval: null,
 });
 
-const permission: Ref<PermissionState> = ref("granted");
+const permission: Ref<PermissionState> = ref("");
 
 async function requestPermissionAndListen() {
   // iOS requires permission to access device motion events
