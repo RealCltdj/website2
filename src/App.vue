@@ -1,30 +1,55 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
 
-let ev = reactive({});
+interface DeviceMotionState {
+  acceleration: DeviceMotionEvent['acceleration'] | null;
+  accelerationIncludingGravity: DeviceMotionEvent['accelerationIncludingGravity'] | null;
+  rotationRate: DeviceMotionEvent['rotationRate'] | null;
+  interval: number | null;
+}
 
-try {
-  DeviceMotionEvent.requestPermission().then(response => {
-    if (response === 'granted') {
-      // You can now listen to motion events
+type PermissionState = "granted" | "denied"
+
+// Initialize reactive state with null values
+const ev = reactive<DeviceMotionState>({
+  acceleration: null,
+  accelerationIncludingGravity: null,
+  rotationRate: null,
+  interval: null,
+});
+
+async function requestPermissionAndListen() {
+  // iOS requires permission to access device motion events
+  if (typeof DeviceMotionEvent !== 'undefined' && 'requestPermission' in DeviceMotionEvent) {
+    try {
+      const response: PermissionState = await DeviceMotionEvent.requestPermission();
+      if (response === 'granted') {
+        window.addEventListener('devicemotion', handleMotion);
+      } else {
+        console.warn('Permission to access device motion denied.');
+      }
+    } catch (err) {
+      console.error('Error requesting device motion permission:', err);
     }
-  });
-}
-finally {
-  
+  } else {
+    // Non iOS or no permission required
+    window.addEventListener('devicemotion', handleMotion);
+  }
 }
 
-window.addEventListener("devicemotion", (event) => {
-  ev = event;
-})
+function handleMotion(event: DeviceMotionEvent) {
+  ev.acceleration = event.acceleration;
+  ev.accelerationIncludingGravity = event.accelerationIncludingGravity;
+  ev.rotationRate = event.rotationRate;
+  ev.interval = event.interval;
+}
 
+requestPermissionAndListen();
 </script>
 
 <template>
-  <h1>devicemotion</h1>
-  <pre>
-    {{ JSON.stringify(ev) }}
-  </pre>
+  <h1>Device Motion</h1>
+  <pre>{{ JSON.stringify(ev, null, 2) }}</pre>
 </template>
 
 <style scoped></style>
