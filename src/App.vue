@@ -3,6 +3,17 @@ import { reactive } from 'vue';
 
 let ev = reactive({});
 
+try {
+  DeviceMotionEvent.requestPermission().then(response => {
+    if (response === 'granted') {
+      // You can now listen to motion events
+    }
+  });
+}
+finally {
+  
+}
+
 window.addEventListener("devicemotion", (event) => {
   ev = event;
 })
