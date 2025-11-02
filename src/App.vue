@@ -65,7 +65,7 @@ else {
 <template>
   <h1>Device Motion</h1>
   <p>Permission: {{ permission }}</p>
-  <button v-if="need_to_ask" @click="requestPermissionAndListen">Grant Access</button>
+  <button v-if="need_to_ask && permission != 'granted'" @click="requestPermissionAndListen">Grant Access</button>
   <p v-if="error != ''">Error: {{ error }}</p>
   <pre>{{ JSON.stringify(ev, null, 2) }}</pre>
 </template>
