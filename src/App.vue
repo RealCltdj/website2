@@ -35,8 +35,10 @@ async function requestPermissionAndListen() {
       }
     } catch (err) {
       permission.value = "failed_to_ask";
-      error.value = JSON.stringify(err);
       console.error('Error requesting device motion permission:', err);
+      if (err instanceof Error) {
+        error.value = err.toString();
+      }
     }
   } else {
     // Non iOS or no permission required
