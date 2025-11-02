@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive } from 'vue';
+import { reactive, ref, type Ref } from 'vue';
 
 interface DeviceMotionState {
   acceleration: DeviceMotionEvent['acceleration'] | null;
@@ -18,11 +18,14 @@ const ev = reactive<DeviceMotionState>({
   interval: null,
 });
 
+const permission: Ref<PermissionState> = ref("granted");
+
 async function requestPermissionAndListen() {
   // iOS requires permission to access device motion events
   if (typeof DeviceMotionEvent !== 'undefined' && 'requestPermission' in DeviceMotionEvent) {
     try {
       const response: PermissionState = await DeviceMotionEvent.requestPermission();
+      permission.value = response;
       if (response === 'granted') {
         window.addEventListener('devicemotion', handleMotion);
       } else {
@@ -49,6 +52,7 @@ requestPermissionAndListen();
 
 <template>
   <h1>Device Motion</h1>
+  <p>Permission: {{ permission }}</p>
   <pre>{{ JSON.stringify(ev, null, 2) }}</pre>
 </template>
 
