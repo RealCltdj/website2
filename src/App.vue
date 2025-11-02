@@ -8,7 +8,7 @@ interface DeviceMotionState {
   interval: number | null;
 }
 
-type PermissionState = "granted" | "denied"
+type PermissionState = "granted" | "denied" | "not_required"
 
 // Initialize reactive state with null values
 const ev = reactive<DeviceMotionState>({
@@ -36,6 +36,7 @@ async function requestPermissionAndListen() {
     }
   } else {
     // Non iOS or no permission required
+    permission.value = "not_required"
     window.addEventListener('devicemotion', handleMotion);
   }
 }
