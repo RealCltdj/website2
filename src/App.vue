@@ -8,7 +8,7 @@ interface DeviceMotionState {
   interval: number | null;
 }
 
-type PermissionState = "granted" | "denied" | "not_required" | "failed_to_ask" | "asking"
+type PermissionState = "granted" | "denied" | "not_required" | "failed_to_ask" | "asking" | "needs_granting"
 
 // Initialize reactive state with null values
 const ev = reactive<DeviceMotionState>({
@@ -56,6 +56,9 @@ function handleMotion(event: DeviceMotionEvent) {
 
 if (!need_to_ask) {
   requestPermissionAndListen();
+}
+else {
+  permission.value = "needs_granting";
 }
 </script>
 
