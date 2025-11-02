@@ -20,10 +20,11 @@ const ev = reactive<DeviceMotionState>({
 
 const permission: Ref<PermissionState> = ref("not_required");
 const error = ref("");
+const need_to_ask = (typeof DeviceMotionEvent !== 'undefined' && 'requestPermission' in DeviceMotionEvent);
 
 async function requestPermissionAndListen() {
   // iOS requires permission to access device motion events
-  if (typeof DeviceMotionEvent !== 'undefined' && 'requestPermission' in DeviceMotionEvent) {
+  if (need_to_ask) {
     try {
       permission.value = "asking";
       const response: PermissionState = await DeviceMotionEvent.requestPermission();
@@ -53,12 +54,15 @@ function handleMotion(event: DeviceMotionEvent) {
   ev.interval = event.interval;
 }
 
-requestPermissionAndListen();
+if (!need_to_ask) {
+  requestPermissionAndListen();
+}
 </script>
 
 <template>
   <h1>Device Motion</h1>
   <p>Permission: {{ permission }}</p>
+  <button v-if="need_to_ask" @click="requestPermissionAndListen">Grant Access</button>
   <p v-if="error != ''">Error: {{ error }}</p>
   <pre>{{ JSON.stringify(ev, null, 2) }}</pre>
 </template>
